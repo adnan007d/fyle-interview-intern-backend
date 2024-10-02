@@ -1,3 +1,11 @@
+# For Docker Build
+Make sure you have docker and docker-compose installed on your machine.
+
+```bash
+docker-compose build
+docker-compose up # -d for detached mode
+```
+
 # Fyle Backend Challenge
 
 ## Who is this for?
