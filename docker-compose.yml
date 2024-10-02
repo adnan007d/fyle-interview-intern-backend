@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    ports:
+      - "7755:7755"
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_APP=core/server.py
+      - FLASK_ENV=production
+    command: >
+      sh -c "
+      flask db upgrade -d core/migrations/ &&
+      gunicorn -c gunicorn_config.py core.server:app"
