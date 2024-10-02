@@ -1,3 +1,5 @@
+from core.models.assignments import GradeEnum
+
 def test_get_assignments_teacher_1(client, h_teacher_1):
     response = client.get(
         '/teacher/assignments',
@@ -42,6 +44,7 @@ def test_grade_assignment_cross(client, h_teacher_2):
     data = response.json
 
     assert data['error'] == 'FyleError'
+    assert data['message'] == 'this assignment belongs to some other teacher'
 
 
 def test_grade_assignment_bad_grade(client, h_teacher_1):
@@ -80,6 +83,7 @@ def test_grade_assignment_bad_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+    assert data['message'] == 'No assignment with this id was found'
 
 
 def test_grade_assignment_draft_assignment(client, h_teacher_1):
@@ -99,3 +103,44 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+
+def test_grade_assignment_empty(client, h_teacher_1):
+    """
+    failure case: grade cannot be empty
+    """
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_1,
+        json={
+            "id": 2,
+            "grade": None
+        }
+    )
+    assert response.status_code == 400
+    data = response.json
+    assert data['error'] == 'ValidationError'
+
+
+def test_list_assignments(client, h_teacher_1):
+    response = client.get(
+        '/teacher/assignments',
+        headers=h_teacher_1
+    )
+    assert response.status_code == 200
+    data = response.json['data']
+
+    for d in data:
+        assert d['teacher_id'] == 1
+
+def test_grade_assignment(client, h_teacher_1):
+
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_1,
+        json={
+            "id": 1,
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 200

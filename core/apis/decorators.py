@@ -25,7 +25,10 @@ def authenticate_principal(func):
     def wrapper(*args, **kwargs):
         p_str = request.headers.get('X-Principal')
         assertions.assert_auth(p_str is not None, 'principal not found')
-        p_dict = json.loads(p_str)
+        try:
+            p_dict = json.loads(p_str)
+        except json.JSONDecodeError:
+            assertions.assert_auth(False)
         p = AuthPrincipal(
             user_id=p_dict['user_id'],
             student_id=p_dict.get('student_id'),
